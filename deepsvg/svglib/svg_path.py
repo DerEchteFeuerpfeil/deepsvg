@@ -111,11 +111,15 @@ class SVGPath:
         return SVGPath.from_commands(path_commands, fill=fill, filling=filling, add_closing=add_closing)
 
     @staticmethod
-    def from_tensor(tensor: torch.Tensor, allow_empty=False):
-        return SVGPath.from_commands([SVGCommand.from_tensor(row) for row in tensor], allow_empty=allow_empty)
+    def from_tensor(tensor: torch.Tensor, allow_empty=False, fill_mode:int = 0):
+        if(fill_mode!=0):
+            fill = True
+        else:
+            fill = False
+        return SVGPath.from_commands([SVGCommand.from_tensor(row) for row in tensor], allow_empty=allow_empty, fill=fill, filling=fill_mode)
 
     @staticmethod
-    def from_commands(path_commands: List[SVGCommand], fill=False, filling=Filling.OUTLINE, add_closing=False, allow_empty=False):
+    def from_commands(path_commands: List[SVGCommand], fill=False, filling=Filling.FILL, add_closing=False, allow_empty=False):
         from .svg_primitive import SVGPathGroup
 
         if not path_commands:
@@ -154,7 +158,15 @@ class SVGPath:
             if not svg_path.path_commands:
                 svg_path.path_commands.append(empty_command)
             svg_paths.append(svg_path)
-        return SVGPathGroup(svg_paths, fill=fill)
+        # print(f"Created Path Group with fill={fill} and filling={filling}")
+        if(filling==Filling.ERASE):
+            c = "white"
+        elif(filling==Filling.FILL):
+            c = "black"
+        else:
+            c="none"
+        
+        return SVGPathGroup(svg_paths, fill=fill, color=c)
 
     def __repr__(self):
         return "SVGPath({})".format(" ".join(command.__repr__() for command in self.all_commands()))

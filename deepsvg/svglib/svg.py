@@ -158,11 +158,11 @@ class SVG:
         return svg
 
     @staticmethod
-    def from_tensors(tensors: List[torch.Tensor], viewbox: Bbox = None, allow_empty=False):
+    def from_tensors(tensors: List[torch.Tensor], fill_list:List[int], viewbox: Bbox = None, allow_empty=False):
         if viewbox is None:
             viewbox = Bbox(24)
 
-        svg = SVG([SVGPath.from_tensor(t, allow_empty=allow_empty) for t in tensors], viewbox=viewbox)
+        svg = SVG([SVGPath.from_tensor(t, allow_empty=allow_empty, fill_mode=fill_list[idx]) for idx, t in enumerate(tensors)], viewbox=viewbox)
         return svg
 
     def save_svg(self, file_path):

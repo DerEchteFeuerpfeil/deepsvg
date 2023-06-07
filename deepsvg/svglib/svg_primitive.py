@@ -23,7 +23,7 @@ class SVGPrimitive:
     """
     Reference: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Shapes
     """
-    def __init__(self, color="black", fill=False, dasharray=None, stroke_width=".3", opacity=1.0):
+    def __init__(self, color="black", fill=False, dasharray=None, stroke_width="3.0", opacity=0.3):
         self.color = color
         self.dasharray = dasharray
         self.stroke_width = stroke_width
@@ -32,7 +32,7 @@ class SVGPrimitive:
         self.fill = fill
 
     def _get_fill_attr(self):
-        fill_attr = f'fill="{self.color}" fill-opacity="{self.opacity}"' if self.fill else f'fill="none" stroke="{self.color}" stroke-width="{self.stroke_width}" stroke-opacity="{self.opacity}"'
+        fill_attr = f'fill="{self.color}" fill-opacity="{self.opacity}"' if self.fill else f'fill="none" stroke="black" stroke-width="{self.stroke_width}" stroke-opacity="{self.opacity}"'
         if self.dasharray is not None and not self.fill:
             fill_attr += f' stroke-dasharray="{self.dasharray}"'
         return fill_attr
