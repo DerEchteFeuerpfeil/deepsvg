@@ -91,15 +91,20 @@ class SVGPath:
         dasharray = x.getAttribute('dasharray')
         stroke_width = x.getAttribute('stroke-width')
 
+        # print(f"Stroke: {stroke}, dasharray: {dasharray}, stroke-width: {stroke_width}")
+
         fill = not x.hasAttribute("fill") or not x.getAttribute("fill") == "none"
 
         filling = Filling.OUTLINE if not x.hasAttribute("filling") else int(x.getAttribute("filling"))
 
         s = x.getAttribute('d')
-        return SVGPath.from_str(s, fill=fill, filling=filling)
+        if stroke_width is not None:
+            return SVGPath.from_str(s, fill=fill, filling=filling, stroke_width=stroke_width)
+        else:
+            return SVGPath.from_str(s, fill=fill, filling=filling)
 
     @staticmethod
-    def from_str(s: str, fill=False, filling=Filling.OUTLINE, add_closing=False):
+    def from_str(s: str, fill=False, filling=Filling.OUTLINE, add_closing=False, stroke_width = None):
         path_commands = []
         pos = initial_pos = Point(0.)
         prev_command = None
@@ -107,8 +112,10 @@ class SVGPath:
             cmd_parsed, pos, initial_pos = SVGCommand.from_str(cmd, args, pos, initial_pos, prev_command)
             prev_command = cmd_parsed[-1]
             path_commands.extend(cmd_parsed)
-
-        return SVGPath.from_commands(path_commands, fill=fill, filling=filling, add_closing=add_closing)
+        if stroke_width is not None:
+            return SVGPath.from_commands(path_commands, fill=fill, filling=filling, add_closing=add_closing, stroke_width=stroke_width)
+        else:
+            return SVGPath.from_commands(path_commands, fill=fill, filling=filling, add_closing=add_closing)
 
     @staticmethod
     def from_tensor(tensor: torch.Tensor, allow_empty=False, fill_mode:int = 0):
@@ -119,7 +126,7 @@ class SVGPath:
         return SVGPath.from_commands([SVGCommand.from_tensor(row) for row in tensor], allow_empty=allow_empty, fill=fill, filling=fill_mode)
 
     @staticmethod
-    def from_commands(path_commands: List[SVGCommand], fill=False, filling=Filling.FILL, add_closing=False, allow_empty=False):
+    def from_commands(path_commands: List[SVGCommand], fill=False, filling=Filling.FILL, add_closing=False, allow_empty=False, stroke_width=None):
         from .svg_primitive import SVGPathGroup
 
         if not path_commands:
@@ -166,7 +173,10 @@ class SVGPath:
         else:
             c="none"
         
-        return SVGPathGroup(svg_paths, fill=fill, color=c)
+        if stroke_width is not None:
+            return SVGPathGroup(svg_paths, fill=fill, color=c, stroke_width=stroke_width)
+        else:
+            return SVGPathGroup(svg_paths, fill=fill, color=c)
 
     def __repr__(self):
         return "SVGPath({})".format(" ".join(command.__repr__() for command in self.all_commands()))

@@ -23,7 +23,7 @@ class SVGPrimitive:
     """
     Reference: https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Shapes
     """
-    def __init__(self, color="black", fill=False, dasharray=None, stroke_width="3.0", opacity=0.3):
+    def __init__(self, color="black", fill=False, dasharray=None, stroke_width="1.0", opacity=1.):
         self.color = color
         self.dasharray = dasharray
         self.stroke_width = stroke_width

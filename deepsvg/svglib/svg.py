@@ -269,6 +269,9 @@ class SVG:
         return self._apply_to_paths("translate", vec)
 
     def rotate(self, angle: Angle, center: Point = None):
+        """
+        inplace modification
+        """
         if center is None:
             center = self.viewbox.center
 
@@ -279,6 +282,9 @@ class SVG:
         return self
 
     def zoom(self, factor, center: Point = None):
+        """
+        inplace modification
+        """
         if center is None:
             center = self.viewbox.center
 
@@ -289,11 +295,16 @@ class SVG:
         return self
 
     def normalize(self, viewbox: Bbox = None):
+        """
+        inplace modification
+        """
         if viewbox is None:
-            viewbox = Bbox(24)
+            viewbox = Bbox(72)
 
         size = self.viewbox.size
+        # print(f"before modification viewbox: {self.viewbox.size}")
         scale_factor = viewbox.size.min() / size.max()
+        # print("scale factor: ", scale_factor)
         self.zoom(scale_factor, viewbox.center)
         self.viewbox = viewbox
 
@@ -331,6 +342,9 @@ class SVG:
         return self
 
     def canonicalize(self, normalize=False):
+        """
+        inplace modification
+        """
         self.to_path().simplify_arcs()
 
         if normalize:
@@ -411,17 +425,32 @@ class SVG:
         self._apply_to_paths("duplicate_extremities")
         return self
 
-    def simplify_heuristic(self, tolerance=0.1, force_smooth=False):
+    def simplify_heuristic(self, tolerance=0.1, force_smooth=False, epsilon: float = 0.2):
+        """
+        NOT inplace modification
+        """
         return self.copy().split(max_dist=2, include_lines=False) \
-            .simplify(tolerance=tolerance, epsilon=0.2, angle_threshold=150, force_smooth=force_smooth) \
+            .simplify(tolerance=tolerance, epsilon=epsilon, angle_threshold=150, force_smooth=force_smooth) \
             .split(max_dist=7.5)
 
     def simplify_heuristic2(self):
+        """
+        NOT inplace modification
+        """
         return self.copy().split(max_dist=2, include_lines=False) \
             .simplify(tolerance=0.2, epsilon=0.2, angle_threshold=150) \
             .split(max_dist=7.5)
 
     def split(self, n=None, max_dist=None, include_lines=True):
+        """
+        splits each command of each path in a path group into n pieces.
+            n = max(math.ceil(l / max_dist), 1)
+
+        Args:
+            - n: number of pieces to split each command into
+            - max_dist: maximum distance between two points
+            - include_lines: whether to include lines in the splitting or not
+        """
         return self._apply_to_paths("split", n=n, max_dist=max_dist, include_lines=include_lines)
 
     @staticmethod

@@ -6,6 +6,7 @@ from tqdm import tqdm
 import glob
 import pandas as pd
 
+# from deepsvg.svglib.svg import SVG
 from deepsvg.svglib.svg import SVG
 
 
@@ -17,7 +18,7 @@ def preprocess_svg(svg_file, output_folder, meta_data):
     svg.normalize()
     svg.zoom(0.9)
     svg.canonicalize()
-    svg = svg.simplify_heuristic()
+    svg = svg.simplify_heuristic(epsilon=0.001)
 
     svg.save_svg(os.path.join(output_folder, f"{filename}.svg"))
 
