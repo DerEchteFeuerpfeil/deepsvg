@@ -336,9 +336,12 @@ class SVGPath:
 
         return self
 
-    def to_video(self, wrapper, clips=None, svg_commands=None, color="grey"):
+    def to_video(self, wrapper, clips=None, svg_commands=None, color="grey", viewbox=None):
         from .svg import SVG
         from .svg_primitive import SVGLine, SVGCircle
+
+        if viewbox is None:
+            viewbox = Bbox(192)
 
         if clips is None:
             clips = []
@@ -360,7 +363,8 @@ class SVGPath:
             svg_new_path = SVGPath([SVGCommandMove(start_pos), command]).to_group(color="red")
 
             svg_paths = [svg_path, svg_new_path]  if svg_commands else [svg_new_path]
-            im = SVG([*svg_paths, *svg_moves, *svg_dots]).draw(do_display=False, return_png=True, with_points=False)
+            # TODO I think here SVG requires a BBOX input, otherwise its just going to be Bbox(24)
+            im = SVG([*svg_paths, *svg_moves, *svg_dots], viewbox=viewbox).draw(do_display=False, return_png=True, with_points=False)
             clips.append(wrapper(np.array(im)))
 
             svg_dots[-1].color = "grey"

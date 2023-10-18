@@ -377,22 +377,26 @@ class SVG:
 
         return self
 
-    def to_video(self, wrapper, color="grey"):
+    def to_video(self, wrapper, color="grey", viewbox:Bbox=None):
         clips, svg_commands = [], []
+        if viewbox is None:
+            viewbox = self.viewbox
 
-        im = SVG([]).draw(do_display=False, return_png=True)
+        im = SVG([], viewbox=viewbox).draw(do_display=False, return_png=True)
         clips.append(wrapper(np.array(im)))
 
         for svg_path in self.paths:
-            clips, svg_commands = svg_path.to_video(wrapper, clips, svg_commands, color=color)
+            clips, svg_commands = svg_path.to_video(wrapper, clips, svg_commands, color=color, viewbox=viewbox)
 
         im = self.draw(do_display=False, return_png=True)
         clips.append(wrapper(np.array(im)))
 
         return clips
 
-    def animate(self, file_path=None, frame_duration=0.1, do_display=True):
-        clips = self.to_video(lambda img: ImageClip(img).set_duration(frame_duration))
+    def animate(self, file_path=None, frame_duration=0.1, do_display=True, viewbox:Bbox=None):
+        if viewbox is None:
+            viewbox = self.viewbox
+        clips = self.to_video(lambda img: ImageClip(img).set_duration(frame_duration), viewbox=viewbox)
 
         clip = concatenate_videoclips(clips, method="compose", bg_color=(255, 255, 255))
 
