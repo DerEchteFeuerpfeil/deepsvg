@@ -21,9 +21,9 @@ def preprocess_svg(char_path):
         new_filename = svg_path.replace("/svgs/", "/svgs_simplified/")
         if not os.path.exists(os.path.dirname(new_filename)):
             os.makedirs(os.path.dirname(new_filename))
-        if os.path.exists(new_filename):
-            continue
-        else:
+        try:
+            if os.path.exists(new_filename):
+                continue
             svg = SVG.load_svg(svg_path)
             svg.fill_(False)
             svg.normalize()
@@ -31,7 +31,6 @@ def preprocess_svg(char_path):
             svg.canonicalize()
             svg = svg.simplify_heuristic(epsilon=0.001)
 
-            svg.save_svg(new_filename)
 
             len_groups = [path_group.total_len() for path_group in svg.svg_path_groups]
 
@@ -43,9 +42,17 @@ def preprocess_svg(char_path):
                 "len_groups": len_groups,
                 "max_len_group": max(len_groups)
             }
+            svg.save_svg(new_filename)
+            
+        except Exception as e:
+            print(f"Error processing {svg_path}: {e}")
+            if isinstance(e, KeyboardInterrupt):
+                raise e
+
     try:
         df = pd.DataFrame(meta_data.values())
-        df.to_csv(os.path.join(char_path, "meta_data.csv"), index=False)
+        save_path = os.path.join(char_path.replace("/svgs/", "/svgs_simplified/"), "meta_data.csv")
+        df.to_csv(save_path, index=False)
     except:
         print(f"Error saving meta_data.csv for {char_path}")
 
